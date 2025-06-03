@@ -11,5 +11,4 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", excuseRoute);
 
-// ✅ Export as a handler for Vercel
 module.exports = app;

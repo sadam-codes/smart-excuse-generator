@@ -1,6 +1,6 @@
 # 🤖 Excuse Generator
 
-An AI-powered Excuse Generator built with [Lyzr AI Agent](https://lyzr.ai), Node.js, Vite + React, and Tailwind CSS. 
+An AI-powered Excuse Generator built with [Lyzr AI Agent], Node.js, Vite + React, and Tailwind CSS. 
 Need a quick excuse for skipping meetings or missing deadlines? This smart assistant has your back.
 
 ---
