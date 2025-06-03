@@ -12,7 +12,7 @@ const ExcuseForm = () => {
     setResponse("");
 
     try {
-      const res = await axios.post("https://smart-excuse-generator-backend.vercel.app/api/generate-excuse", {
+      const res = await axios.post("http://localhost:5000/api/generate-excuse", {
         prompt,
       });
       setResponse(res.data.response || JSON.stringify(res.data, null, 2));
@@ -49,7 +49,7 @@ const ExcuseForm = () => {
             {loading ? "Generating..." : "Generate Excuse"}
           </button>
           {response && (
-            <div className="mt-8 p-6 border rounded-2xl whitespace-pre-line font-medium ">
+           <div className="mt-8 p-6 border rounded-2xl whitespace-pre-line font-medium ">
               {response}
             </div>
           )}

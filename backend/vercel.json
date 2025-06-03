@@ -1,11 +1,16 @@
 {
   "version": 2,
-  "name": "node.js",
-  "builds": [{ "src": "server.js", "use": "@vercel/node" }],
+  "name": "smart-excuse-generator-backend",
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/server.js"
     }
   ]
 }
