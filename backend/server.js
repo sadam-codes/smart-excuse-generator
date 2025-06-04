@@ -1,14 +1,25 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const excuseRoute = require("./excuseAgent");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import chatRoutes from "./routes/chat.js";
+import uploadRoutes from "./routes/uploadPdf.js";
 
 dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
-app.use("/api", excuseRoute);
+app.use("/api", chatRoutes);
+app.use("/api", uploadRoutes);
+import fs from "fs";
+import path from "path";
 
-module.exports = app;
+const uploadDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+  console.log("Created uploads directory");
+}
+
+app.listen(4000, () => {
+  console.log("Server is running on http://localhost:4000");
+});

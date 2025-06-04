@@ -1,9 +1,9 @@
 import React from 'react'
-import ExcuseForm from './components/ExcuseForm'
+import Chat from './components/Chat'
 function App() {
   return (
     <>
-      <ExcuseForm />
+      <Chat />
     </>
   )
 }

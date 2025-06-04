@@ -20,4 +20,3 @@ Need a quick excuse for skipping meetings or missing deadlines? This smart assis
 - **Frontend:** React + Vite + Tailwind CSS
 - **Backend:** Node.js + Express
 - **AI Engine:** Lyzr AI Agent API
-
