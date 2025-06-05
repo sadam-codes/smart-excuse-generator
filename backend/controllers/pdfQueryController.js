@@ -35,27 +35,18 @@ export const PdfQueryController = async (req, res) => {
     res.setHeader("Connection", "keep-alive");
 
     let buffer = "";
-
     for await (const chunk of stream) {
       if (chunk.content) {
         buffer += chunk.content;
-
-        // Check if buffer ends with punctuation or buffer size > 100 characters
         if (/[.!?]\s*$/.test(buffer) || buffer.length > 100) {
-          // Send buffered chunk trimmed
           res.write(`data: ${buffer.trim()}\n`);
           buffer = "";
         }
       }
     }
-
-    // Send any leftover buffer content
     if (buffer.length > 0) {
       res.write(`data: ${buffer.trim()}\n`);
     }
-
-    // Signal end of stream
-    res.write("data: [DONE]\n\n");
     res.end();
   } catch (error) {
     console.error("Streaming Error:", error);

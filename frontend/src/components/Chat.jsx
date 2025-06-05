@@ -6,12 +6,12 @@ const Chat = () => {
     const [loading, setLoading] = useState(false);
     const [pdf, setPdf] = useState(null);
     const [uploadStatus, setUploadStatus] = useState("");
-    const [chunks, setChunks] = useState([]); // For storing streamed chunks
+    const [chunks, setChunks] = useState([]);
 
     const streamPDFAnswer = async (question) => {
         if (!question.trim()) return;
 
-        setChunks([]); // Clear previous chunks
+        setChunks([]);
         setLoading(true);
 
         try {
@@ -79,7 +79,6 @@ const Chat = () => {
             setUploadStatus("Upload failed. Try again.");
         }
     };
-
     return (
         <div className="min-h-screen bg-black text-white px-4 py-10">
             <main className="max-w-2xl mx-auto space-y-2">
@@ -89,7 +88,7 @@ const Chat = () => {
                         type="file"
                         accept="application/pdf"
                         onChange={handlePdfChange}
-                        className="w-full mb-4 border border-gray-300 rounded-lg p-3"
+                        className="w-full mb-4 border border-black rounded-lg p-3"
                     />
                     <button
                         onClick={uploadPdf}
@@ -98,7 +97,7 @@ const Chat = () => {
                         Upload PDF
                     </button>
                     {uploadStatus && (
-                        <div className="mt-4 text-sm text-center font-medium text-gray-800">
+                        <div className="mt-4 text-sm text-center font-medium">
                             {uploadStatus}
                         </div>
                     )}
@@ -116,13 +115,13 @@ const Chat = () => {
                     <button
                         onClick={() => streamPDFAnswer(prompt)}
                         disabled={loading}
-                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading ? "bg-gray-600" : "bg-black"
+                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading ? "bg-black" : "bg-black"
                             }`}
                     >
                         {loading ? "Thinking..." : "Ask"}
                     </button>
                     {chunks.length > 0 && (
-                        <ul className="mt-6 p-4 border rounded-lg bg-gray-100 text-black font-medium list-disc pl-6 space-y-2">
+                        <ul className="mt-6 p-4 border rounded-lg text-black font-medium list-disc pl-6 space-y-2">
                             {chunks.map((chunk, index) => (
                                 <li key={index}>{chunk}</li>
                             ))}
@@ -133,5 +132,4 @@ const Chat = () => {
         </div>
     );
 };
-
 export default Chat;
