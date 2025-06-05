@@ -8,18 +8,19 @@ const Chat = () => {
     const [pdf, setPdf] = useState(null);
     const [uploadStatus, setUploadStatus] = useState("");
 
-    const generateExcuse = async () => {
+    const askQuestionFromPDF = async () => {
         if (!prompt.trim()) return;
         setLoading(true);
         setResponse("");
 
         try {
-            const res = await axios.post("http://localhost:4000/api/search", {
-                prompt,
+            const res = await axios.post("http://localhost:4000/api/pdf-query", {
+                question: prompt,
             });
-            setResponse(res.data.response || JSON.stringify(res.data, null, 2));
+            setResponse(res.data.answer || "No response found.");
         } catch (error) {
-            setResponse("Failed to get response.");
+            setResponse("❌ Failed to get response from server.");
+            console.error("PDF Query Error:", error);
         } finally {
             setLoading(false);
         }
@@ -29,81 +30,78 @@ const Chat = () => {
         const file = e.target.files[0];
         if (file && file.type === "application/pdf") {
             setPdf(file);
+            setUploadStatus("");
         } else {
-            setUploadStatus("Only PDF files are allowed.");
+            setUploadStatus("❌ Only PDF files are allowed.");
         }
     };
 
     const uploadPdf = async () => {
         if (!pdf) {
-            setUploadStatus("Please select a PDF file.");
+            setUploadStatus("❌ Please select a PDF file.");
             return;
         }
 
-        setUploadStatus("Uploading...");
+        setUploadStatus("⏳ Uploading...");
         const formData = new FormData();
         formData.append("pdf", pdf);
 
         try {
             await axios.post("http://localhost:4000/api/upload", formData);
-            setUploadStatus("PDF uploaded and embedded successfully!");
+            setUploadStatus("✅ PDF uploaded and embedded successfully!");
             setPdf(null);
         } catch (error) {
-            console.error(error);
-            setUploadStatus("Upload failed. Try again.");
+            console.error("Upload Error:", error);
+            setUploadStatus("❌ Upload failed. Try again.");
         }
     };
 
     return (
-        <div className="min-h-screen flex flex-col border-2 bg-black fixed top-0 w-full">
-            <main className="flex-grow flex flex-col items-center justify-center px-4 space-y-10 py-10">
-                <div className="bg-white bg-opacity-90 backdrop-blur-lg rounded-3xl shadow-xl max-w-xl w-full p-8">
-                    <h2 className="text-2xl font-bold text-black mb-4 text-center">Upload PDF</h2>
+        <div className="min-h-screen bg-black text-white px-4 py-10">
+            <main className="max-w-2xl mx-auto space-y-12">
+                {/* Upload PDF Section */}
+                <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
+                    <h2 className="text-2xl font-bold text-center mb-4">📄 Upload PDF</h2>
                     <input
                         type="file"
                         accept="application/pdf"
                         onChange={handlePdfChange}
-                        className="w-full mb-4 border rounded-xl p-3"
+                        className="w-full mb-4 border border-gray-300 rounded-lg p-3"
                     />
                     <button
                         onClick={uploadPdf}
-                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl"
+                        className="w-full py-3 bg-black text-white font-semibold rounded-lg"
                     >
                         Upload PDF
                     </button>
                     {uploadStatus && (
-                        <div className="mt-4 text-sm text-center font-medium">{uploadStatus}</div>
+                        <div className="mt-4 text-sm text-center font-medium text-gray-800">{uploadStatus}</div>
                     )}
                 </div>
-
-                {/* Chat Prompt Section */}
-                {/* <div className="bg-white bg-opacity-90 backdrop-blur-lg rounded-3xl shadow-xl max-w-xl w-full p-10">
-          <h2 className="text-4xl font-bold text-black mb-8 text-center drop-shadow-sm">
-            Ask Your PDF
-          </h2>
-          <input
-            className="border p-4 w-full rounded-2xl mb-6"
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Ask a question from the uploaded PDF..."
-            disabled={loading}
-          />
-          <button
-            className={`w-full py-4 rounded-2xl text-white font-semibold transition ${
-              loading ? "bg-gray-800" : "bg-black"
-            } shadow-lg`}
-            onClick={generateExcuse}
-            disabled={loading}
-          >
-            {loading ? "Thinking..." : "Ask"}
-          </button>
-          {response && (
-            <div className="mt-8 p-6 border rounded-2xl whitespace-pre-line font-medium">
-              {response}
-            </div>
-          )}
-        </div> */}
+                <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
+                    <h2 className="text-2xl font-bold text-center mb-4">💬 Ask from PDF</h2>
+                    <input
+                        className="border p-3 w-full rounded-lg mb-4"
+                        type="text"
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder="Ask a question from the uploaded PDF..."
+                        disabled={loading}
+                    />
+                    <button
+                        onClick={askQuestionFromPDF}
+                        disabled={loading}
+                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading ? "bg-gray-600" : "bg-black"
+                            }`}
+                    >
+                        {loading ? "Thinking..." : "Ask"}
+                    </button>
+                    {response && (
+                        <div className="mt-6 p-4 border rounded-lg whitespace-pre-line bg-gray-100 text-black font-medium">
+                            {response}
+                        </div>
+                    )}
+                </div>
             </main>
         </div>
     );

@@ -15,12 +15,11 @@ export const uploadAndProcessPDF = async (req, res) => {
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,
       chunkOverlap: 200,
-    });
-
+    }); 
     const splitDocs = await splitter.splitDocuments(docs);
     await saveDocuments(splitDocs);
 
-    fs.unlinkSync(filePath); // Clean up the uploaded file
+    fs.unlinkSync(filePath);
 
     res.status(200).json({
       message: "PDF processed and embedded successfully",
