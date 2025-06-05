@@ -8,6 +8,7 @@ export const PdfQueryController = async (req, res) => {
     if (!question) {
       return res.status(400).json({ error: "Question is required" });
     }
+
     const vectorStore = await getVectorStore();
     const docs = await vectorStore.similaritySearch(question, 3);
     const context = docs.map(doc => doc.pageContent).join("\n---\n");
@@ -33,12 +34,28 @@ export const PdfQueryController = async (req, res) => {
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
+    let buffer = "";
+
     for await (const chunk of stream) {
       if (chunk.content) {
-        res.write(`data: ${chunk.content}\n\n`);
+        buffer += chunk.content;
+
+        // Check if buffer ends with punctuation or buffer size > 100 characters
+        if (/[.!?]\s*$/.test(buffer) || buffer.length > 100) {
+          // Send buffered chunk trimmed
+          res.write(`data: ${buffer.trim()}\n`);
+          buffer = "";
+        }
       }
     }
 
+    // Send any leftover buffer content
+    if (buffer.length > 0) {
+      res.write(`data: ${buffer.trim()}\n`);
+    }
+
+    // Signal end of stream
+    res.write("data: [DONE]\n\n");
     res.end();
   } catch (error) {
     console.error("Streaming Error:", error);

@@ -66,23 +66,23 @@ const Chat = () => {
             return;
         }
 
-        setUploadStatus("⏳ Uploading...");
+        setUploadStatus("Uploading...");
         const formData = new FormData();
         formData.append("pdf", pdf);
 
         try {
             await axios.post("http://localhost:4000/api/upload", formData);
-            setUploadStatus("✅ PDF uploaded and embedded successfully!");
+            setUploadStatus("PDF uploaded and embedded successfully!");
             setPdf(null);
         } catch (error) {
             console.error("Upload Error:", error);
-            setUploadStatus("❌ Upload failed. Try again.");
+            setUploadStatus("Upload failed. Try again.");
         }
     };
 
     return (
         <div className="min-h-screen bg-black text-white px-4 py-10">
-            <main className="max-w-2xl mx-auto space-y-12">
+            <main className="max-w-2xl mx-auto space-y-2">
                 <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
                     <h2 className="text-2xl font-bold text-center mb-4">📄 Upload PDF</h2>
                     <input
@@ -103,7 +103,7 @@ const Chat = () => {
                         </div>
                     )}
                 </div>
-                <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
+                <div className="bg-white text-black rounded-3xl shadow-lg p-8">
                     <h2 className="text-2xl font-bold text-center mb-4">💬 Ask from PDF</h2>
                     <input
                         className="border p-3 w-full rounded-lg mb-4"
@@ -116,9 +116,8 @@ const Chat = () => {
                     <button
                         onClick={() => streamPDFAnswer(prompt)}
                         disabled={loading}
-                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${
-                            loading ? "bg-gray-600" : "bg-black"
-                        }`}
+                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading ? "bg-gray-600" : "bg-black"
+                            }`}
                     >
                         {loading ? "Thinking..." : "Ask"}
                     </button>
