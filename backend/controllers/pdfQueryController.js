@@ -1,43 +1,47 @@
 import { ChatOpenAI } from "@langchain/openai";
 import { getVectorStore } from "../utils/vectorStore.js";
 
-export class PdfQueryController {
-  static async queryFromPdf(req, res) {
-    try {
-      const { question } = req.body;
+export const PdfQueryController = async (req, res) => {
+  try {
+    const { question } = req.body;
 
-      if (!question) {
-        return res.status(400).json({ error: "Question is required" });
-      }
-
-      const vectorStore = await getVectorStore();
-      if (!vectorStore) throw new Error("Vector store not loaded");
-
-      const docs = await vectorStore.similaritySearch(question, 4);
-
-      const context = docs.map(doc => doc.pageContent).join("\n---\n");
-      const model = new ChatOpenAI({
-        model: "gpt-4o",
-        temperature: 0,
-      });
-
-      const response = await model.invoke([
-        {
-          role: "system",
-          content: `You are a PDF assistant. Use only the context provided to answer the question.`,
-        },
-        {
-          role: "user",
-          content: `Context:\n${context}\n\nQuestion:\n${question}`,
-        },
-      ]);
-      res.status(200).json({
-        answer: response.content,
-        rawChunks: docs.map((doc, i) => ({ id: i + 1, content: doc.pageContent })),
-      });
-    } catch (error) {
-      console.error("🔥 PDF Query Error:", error.message);
-      res.status(500).json({ error: "Server error while processing question." });
+    if (!question) {
+      return res.status(400).json({ error: "Question is required" });
     }
+    const vectorStore = await getVectorStore();
+    const docs = await vectorStore.similaritySearch(question, 3);
+    const context = docs.map(doc => doc.pageContent).join("\n---\n");
+
+    const chatModel = new ChatOpenAI({
+      modelName: "gpt-4o",
+      temperature: 0,
+      streaming: true,
+    });
+
+    const stream = await chatModel.stream([
+      {
+        role: "system",
+        content: `Use the context below to answer the question. Respond naturally.\n\nContext:\n${context}`,
+      },
+      {
+        role: "user",
+        content: question,
+      },
+    ]);
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    for await (const chunk of stream) {
+      if (chunk.content) {
+        res.write(`data: ${chunk.content}\n\n`);
+      }
+    }
+
+    res.end();
+  } catch (error) {
+    console.error("Streaming Error:", error);
+    res.status(500).json({ error: "Failed to stream answer." });
   }
-}
+};

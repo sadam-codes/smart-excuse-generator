@@ -3,24 +3,48 @@ import axios from "axios";
 
 const Chat = () => {
     const [prompt, setPrompt] = useState("");
-    const [response, setResponse] = useState("");
     const [loading, setLoading] = useState(false);
     const [pdf, setPdf] = useState(null);
     const [uploadStatus, setUploadStatus] = useState("");
+    const [chunks, setChunks] = useState([]); // For storing streamed chunks
 
-    const askQuestionFromPDF = async () => {
-        if (!prompt.trim()) return;
+    const streamPDFAnswer = async (question) => {
+        if (!question.trim()) return;
+
+        setChunks([]); // Clear previous chunks
         setLoading(true);
-        setResponse("");
 
         try {
-            const res = await axios.post("http://localhost:4000/api/pdf-query", {
-                question: prompt,
+            const response = await fetch("http://localhost:4000/api/pdf-retrieving", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ question }),
             });
-            setResponse(res.data.answer || "No response found.");
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let currentChunks = [];
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split("data: ").filter(Boolean);
+
+                for (const line of lines) {
+                    const cleaned = line.trim();
+                    if (cleaned) {
+                        currentChunks.push(cleaned);
+                        setChunks([...currentChunks]);
+                    }
+                }
+            }
         } catch (error) {
-            setResponse("❌ Failed to get response from server.");
-            console.error("PDF Query Error:", error);
+            currentChunks.push("⚠️ Failed to retrieve data.");
+            setChunks([...currentChunks]);
         } finally {
             setLoading(false);
         }
@@ -32,13 +56,13 @@ const Chat = () => {
             setPdf(file);
             setUploadStatus("");
         } else {
-            setUploadStatus("❌ Only PDF files are allowed.");
+            setUploadStatus("Only PDF files are allowed.");
         }
     };
 
     const uploadPdf = async () => {
         if (!pdf) {
-            setUploadStatus("❌ Please select a PDF file.");
+            setUploadStatus("Please select a PDF file.");
             return;
         }
 
@@ -59,7 +83,6 @@ const Chat = () => {
     return (
         <div className="min-h-screen bg-black text-white px-4 py-10">
             <main className="max-w-2xl mx-auto space-y-12">
-                {/* Upload PDF Section */}
                 <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
                     <h2 className="text-2xl font-bold text-center mb-4">📄 Upload PDF</h2>
                     <input
@@ -75,7 +98,9 @@ const Chat = () => {
                         Upload PDF
                     </button>
                     {uploadStatus && (
-                        <div className="mt-4 text-sm text-center font-medium text-gray-800">{uploadStatus}</div>
+                        <div className="mt-4 text-sm text-center font-medium text-gray-800">
+                            {uploadStatus}
+                        </div>
                     )}
                 </div>
                 <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
@@ -89,21 +114,25 @@ const Chat = () => {
                         disabled={loading}
                     />
                     <button
-                        onClick={askQuestionFromPDF}
+                        onClick={() => streamPDFAnswer(prompt)}
                         disabled={loading}
-                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading ? "bg-gray-600" : "bg-black"
-                            }`}
+                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${
+                            loading ? "bg-gray-600" : "bg-black"
+                        }`}
                     >
                         {loading ? "Thinking..." : "Ask"}
                     </button>
-                    {response && (
-                        <div className="mt-6 p-4 border rounded-lg whitespace-pre-line bg-gray-100 text-black font-medium">
-                            {response}
-                        </div>
+                    {chunks.length > 0 && (
+                        <ul className="mt-6 p-4 border rounded-lg bg-gray-100 text-black font-medium list-disc pl-6 space-y-2">
+                            {chunks.map((chunk, index) => (
+                                <li key={index}>{chunk}</li>
+                            ))}
+                        </ul>
                     )}
                 </div>
             </main>
         </div>
     );
 };
+
 export default Chat;
