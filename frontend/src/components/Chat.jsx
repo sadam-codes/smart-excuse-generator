@@ -43,7 +43,7 @@ const Chat = () => {
                 }
             }
         } catch (error) {
-            currentChunks.push("⚠️ Failed to retrieve data.");
+            currentChunks.push("Failed to retrieve data.");
             setChunks([...currentChunks]);
         } finally {
             setLoading(false);
@@ -92,7 +92,7 @@ const Chat = () => {
                     />
                     <button
                         onClick={uploadPdf}
-                        className="w-full py-3 bg-black text-white font-semibold rounded-lg"
+                        className="w-full py-4 bg-black text-white font-semibold rounded-lg"
                     >
                         Upload PDF
                     </button>
