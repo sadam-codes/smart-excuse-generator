@@ -48,7 +48,7 @@ export const login = async (req, res) => {
 };
 //yaha se admin ka logic start ho raha hai
 
-export const admin = async (req, res) => {
+export const adminAccess = async (req, res) => {
   if (req.user.role !== "admin") {
     return res.status(403).json({ error: "Access denied: Admins only" });
   }
@@ -56,9 +56,10 @@ export const admin = async (req, res) => {
 }
 
 //yaha se user ka logic start ho raha hai
-export const user = async (req, res) => {
+export const userAccess = async (req, res) => {
   if (req.user.role !== "user") {
     return res.status(403).json({ error: "Access denied: Users only" });
   }
   res.json({ message: `Welcome User (ID: ${req.user.id})` });
 }
+
