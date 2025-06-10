@@ -46,8 +46,8 @@ const Chat = () => {
                 }
             }
         } catch (error) {
-            console.error("Streaming error:", error);
-            setMarkdownText("❌ Failed to retrieve response.");
+            currentChunks.push("⚠️ Failed to retrieve data.");
+            setChunks([...currentChunks]);
         } finally {
             setLoading(false);
         }
@@ -92,22 +92,22 @@ const Chat = () => {
             <Toaster position="top-center" reverseOrder={false} />
             <main className="max-w-2xl mx-auto space-y-2">
                 <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
-                    <h2 className="text-2xl font-bold text-center mb-4">📄 Upload PDF</h2>
+                    <h2 className="text-2xl font-bold text-center mb-5">📄 Upload PDF</h2>
                     <input
                         type="file"
                         accept="application/pdf"
                         onChange={handlePdfChange}
-                        className="w-full mb-4 border border-black rounded-lg p-3"
+                        className="w-full mb-4 border border-black rounded-lg p-4"
                     />
                     <button
                         onClick={uploadPdf}
-                        className="w-full py-3 bg-black text-white font-semibold rounded-lg"
+                        className="w-full py-4 bg-black text-white font-semibold rounded-lg"
                     >
                         Upload PDF
                     </button>
                 </div>
                 <div className="bg-white text-black rounded-3xl shadow-lg p-8">
-                    <h2 className="text-2xl font-bold text-center mb-4">💬 Ask from PDF</h2>
+                    <h2 className="text-2xl font-bold text-center mb-5">💬 Ask from PDF</h2>
                     <input
                         className="border p-3 w-full rounded-lg mb-4"
                         type="text"
