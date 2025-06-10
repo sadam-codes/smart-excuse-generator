@@ -3,8 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import uploadRoutes from "./routes/uploadPdf.js";
-import pdfQueryRoutes from "./routes/pdfQuery.js";
+import uploadRoutes from "./routes/uploadPdfRoute.js";
+import pdfQueryRoutes from "./routes/pdfQueryRoute.js";
 import authRoutes from './routes/authRoute.js';
 
 dotenv.config();

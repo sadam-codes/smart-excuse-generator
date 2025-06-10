@@ -37,8 +37,6 @@ const Chat = () => {
 
                 for (let line of lines) {
                     const cleaned = line.trim();
-
-                    // Append with a space unless it's already spaced
                     if (cleaned) {
                         buffer += cleaned.endsWith(" ") ? cleaned : cleaned + " ";
                         setMarkdownText(buffer);
@@ -46,7 +44,7 @@ const Chat = () => {
                 }
             }
         } catch (error) {
-            currentChunks.push("⚠️ Failed to retrieve data.");
+            currentChunks.push("Failed to retrieve data.");
             setChunks([...currentChunks]);
         } finally {
             setLoading(false);
@@ -59,7 +57,7 @@ const Chat = () => {
         const file = e.target.files[0];
         if (file && file.type === "application/pdf") {
             setPdf(file);
-            toast.dismiss(); // Remove any previous toast
+            toast.dismiss();
         } else {
             toast.error("Only PDF files are allowed.");
         }
@@ -78,12 +76,12 @@ const Chat = () => {
         try {
             await axios.post("http://localhost:4000/api/upload", formData);
             toast.dismiss();
-            toast.success("✅ PDF uploaded and embedded successfully!");
+            toast.success("PDF uploaded and embedded successfully!");
             setPdf(null);
         } catch (error) {
             console.error("Upload Error:", error);
             toast.dismiss();
-            toast.error("❌ Upload failed. Try again.");
+            toast.error("Upload failed. Try again.");
         }
     };
 
@@ -129,8 +127,6 @@ const Chat = () => {
                             <ReactMarkdown>{markdownText}</ReactMarkdown>
                         </div>
                     )}
-
-
                 </div>
             </main>
         </div>
