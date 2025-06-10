@@ -19,6 +19,7 @@ export const signup = async (req, res) => {
     const existingUser = await findUserByEmail(email);
     if (existingUser) return res.status(400).json({ message: "User already exists" });
 
+    // ab dekh mn kaisy password ko encrypt krta hun 😎
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await createUser(name, email, hashedPassword, role);
     const token = generateToken(newUser);
@@ -46,7 +47,7 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Login error", error: err.message });
   }
 };
-//yaha se admin ka logic start ho raha hai
+//yaha se adminAccess ka logic start ho raha hai
 
 export const adminAccess = async (req, res) => {
   if (req.user.role !== "admin") {
@@ -55,7 +56,7 @@ export const adminAccess = async (req, res) => {
   res.json({ message: `Welcome Admin (ID: ${req.user.id})` });
 }
 
-//yaha se user ka logic start ho raha hai
+//yaha se userAccess ka logic start ho raha hai
 export const userAccess = async (req, res) => {
   if (req.user.role !== "user") {
     return res.status(403).json({ error: "Access denied: Users only" });
