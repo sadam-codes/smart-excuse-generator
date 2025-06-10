@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { findUserByEmail, createUser } from "../models/userModel.js";
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -10,6 +11,7 @@ const generateToken = (user) => {
   });
 };
 
+//yaha se signup ka logic start ho raha hai
 export const signup = async (req, res) => {
   const { name, email, password, role } = req.body;
 
@@ -27,6 +29,7 @@ export const signup = async (req, res) => {
   }
 };
 
+//yaha se login ka logic start ho raha hai
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -43,3 +46,19 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Login error", error: err.message });
   }
 };
+//yaha se admin ka logic start ho raha hai
+
+export const admin = async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access denied: Admins only" });
+  }
+  res.json({ message: `Welcome Admin (ID: ${req.user.id})` });
+}
+
+//yaha se user ka logic start ho raha hai
+export const user = async (req, res) => {
+  if (req.user.role !== "user") {
+    return res.status(403).json({ error: "Access denied: Users only" });
+  }
+  res.json({ message: `Welcome User (ID: ${req.user.id})` });
+}

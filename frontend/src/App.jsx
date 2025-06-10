@@ -1,11 +1,11 @@
 import React from 'react'
-import Chat from './components/Chat'
 import Login from './pages/Login'
+import PdfUploader from "./components/PdfUploader"
 function App() {
   return (
     <>
-      <Chat />
-      <Login/>
+      <PdfUploader />
+      <Login />
     </>
   )
 }
