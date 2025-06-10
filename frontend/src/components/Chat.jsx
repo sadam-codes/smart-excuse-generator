@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
 
 const Chat = () => {
     const [prompt, setPrompt] = useState("");
     const [loading, setLoading] = useState(false);
     const [pdf, setPdf] = useState(null);
     const [uploadStatus, setUploadStatus] = useState("");
-    const [chunks, setChunks] = useState([]);
+    const [markdownText, setMarkdownText] = useState("");
 
     const streamPDFAnswer = async (question) => {
         if (!question.trim()) return;
 
-        setChunks([]);
+        setMarkdownText("");
         setLoading(true);
 
         try {
@@ -25,7 +26,6 @@ const Chat = () => {
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            let currentChunks = [];
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -37,14 +37,12 @@ const Chat = () => {
                 for (const line of lines) {
                     const cleaned = line.trim();
                     if (cleaned) {
-                        currentChunks.push(cleaned);
-                        setChunks([...currentChunks]);
+                        setMarkdownText((prev) => prev + cleaned + " ");
                     }
                 }
             }
         } catch (error) {
-            currentChunks.push("⚠️ Failed to retrieve data.");
-            setChunks([...currentChunks]);
+            setMarkdownText("⚠️ Failed to retrieve data.");
         } finally {
             setLoading(false);
         }
@@ -79,6 +77,7 @@ const Chat = () => {
             setUploadStatus("Upload failed. Try again.");
         }
     };
+
     return (
         <div className="min-h-screen bg-black text-white px-4 py-10">
             <main className="max-w-2xl mx-auto space-y-2">
@@ -115,21 +114,20 @@ const Chat = () => {
                     <button
                         onClick={() => streamPDFAnswer(prompt)}
                         disabled={loading}
-                        className={`w-full py-3 rounded-lg text-white font-semibold transition ${loading ? "bg-black" : "bg-black"
-                            }`}
+                        className="w-full py-3 rounded-lg text-white font-semibold bg-black"
                     >
                         {loading ? "Thinking..." : "Ask"}
                     </button>
-                    {chunks.length > 0 && (
-                        <ul className="mt-6 p-4 border rounded-lg text-black font-medium list-disc pl-6 space-y-2">
-                            {chunks.map((chunk, index) => (
-                                <li key={index}>{chunk}</li>
-                            ))}
-                        </ul>
+
+                    {markdownText && (
+                        <ol className="mt-6 p-4 border rounded-lg bg-white text-black font-medium whitespace-pre-wrap">
+                            <li>{markdownText}</li>
+                        </ol>
                     )}
                 </div>
             </main>
         </div>
     );
 };
+
 export default Chat;

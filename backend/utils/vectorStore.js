@@ -1,9 +1,10 @@
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
-import { OpenAIEmbeddings } from "@langchain/openai";
+import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
 import { v4 as uuidv4 } from "uuid";
 
-const embeddings = new OpenAIEmbeddings({
-  model: "text-embedding-3-small",
+// Load locally via @xenova/transformers (no API key required)
+const embeddings = new HuggingFaceTransformersEmbeddings({
+  modelName: "Xenova/all-MiniLM-L6-v2",
 });
 
 const config = {
@@ -24,7 +25,6 @@ const config = {
   },
   distanceStrategy: "cosine",
 };
-
 
 export const getVectorStore = async () => await PGVectorStore.initialize(embeddings, config);
 
