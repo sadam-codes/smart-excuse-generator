@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import toast, { Toaster } from "react-hot-toast";
 
 const Chat = () => {
     const [prompt, setPrompt] = useState("");
     const [loading, setLoading] = useState(false);
     const [pdf, setPdf] = useState(null);
-    const [uploadStatus, setUploadStatus] = useState("");
     const [markdownText, setMarkdownText] = useState("");
-
     const streamPDFAnswer = async (question) => {
         if (!question.trim()) return;
 
@@ -25,61 +24,72 @@ const Chat = () => {
             });
 
             const reader = response.body.getReader();
-            const decoder = new TextDecoder();
+            const decoder = new TextDecoder("utf-8");
+
+            let buffer = "";
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
-                const chunk = decoder.decode(value);
-                const lines = chunk.split("data: ").filter(Boolean);
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split("data:").filter(Boolean);
 
-                for (const line of lines) {
+                for (let line of lines) {
                     const cleaned = line.trim();
+
+                    // Append with a space unless it's already spaced
                     if (cleaned) {
-                        setMarkdownText((prev) => prev + cleaned + " ");
+                        buffer += cleaned.endsWith(" ") ? cleaned : cleaned + " ";
+                        setMarkdownText(buffer);
                     }
                 }
             }
         } catch (error) {
-            setMarkdownText("⚠️ Failed to retrieve data.");
+            console.error("Streaming error:", error);
+            setMarkdownText("❌ Failed to retrieve response.");
         } finally {
             setLoading(false);
         }
     };
 
+
+
     const handlePdfChange = (e) => {
         const file = e.target.files[0];
         if (file && file.type === "application/pdf") {
             setPdf(file);
-            setUploadStatus("");
+            toast.dismiss(); // Remove any previous toast
         } else {
-            setUploadStatus("Only PDF files are allowed.");
+            toast.error("Only PDF files are allowed.");
         }
     };
 
     const uploadPdf = async () => {
         if (!pdf) {
-            setUploadStatus("Please select a PDF file.");
+            toast.error("Please select a PDF file first.");
             return;
         }
 
-        setUploadStatus("Uploading...");
+        toast.loading("📤 Uploading...");
         const formData = new FormData();
         formData.append("pdf", pdf);
 
         try {
             await axios.post("http://localhost:4000/api/upload", formData);
-            setUploadStatus("PDF uploaded and embedded successfully!");
+            toast.dismiss();
+            toast.success("✅ PDF uploaded and embedded successfully!");
             setPdf(null);
         } catch (error) {
             console.error("Upload Error:", error);
-            setUploadStatus("Upload failed. Try again.");
+            toast.dismiss();
+            toast.error("❌ Upload failed. Try again.");
         }
     };
 
     return (
         <div className="min-h-screen bg-black text-white px-4 py-10">
+            <Toaster position="top-center" reverseOrder={false} />
             <main className="max-w-2xl mx-auto space-y-2">
                 <div className="bg-white text-black bg-opacity-90 backdrop-blur rounded-3xl shadow-lg p-8">
                     <h2 className="text-2xl font-bold text-center mb-4">📄 Upload PDF</h2>
@@ -95,11 +105,6 @@ const Chat = () => {
                     >
                         Upload PDF
                     </button>
-                    {uploadStatus && (
-                        <div className="mt-4 text-sm text-center font-medium">
-                            {uploadStatus}
-                        </div>
-                    )}
                 </div>
                 <div className="bg-white text-black rounded-3xl shadow-lg p-8">
                     <h2 className="text-2xl font-bold text-center mb-4">💬 Ask from PDF</h2>
@@ -116,14 +121,16 @@ const Chat = () => {
                         disabled={loading}
                         className="w-full py-3 rounded-lg text-white font-semibold bg-black"
                     >
-                        {loading ? "Thinking..." : "Ask"}
+                        {loading ? "Thinking..." : "Ask Me"}
                     </button>
 
                     {markdownText && (
-                        <ol className="mt-6 p-4 border rounded-lg bg-white text-black font-medium whitespace-pre-wrap">
-                            <li>{markdownText}</li>
-                        </ol>
+                        <div className="mt-6 p-4 border rounded-lg bg-white text-black font-medium whitespace-pre-wrap">
+                            <ReactMarkdown>{markdownText}</ReactMarkdown>
+                        </div>
                     )}
+
+
                 </div>
             </main>
         </div>

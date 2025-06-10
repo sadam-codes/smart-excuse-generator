@@ -1,18 +1,22 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
 import uploadRoutes from "./routes/uploadPdf.js";
 import pdfQueryRoutes from "./routes/pdfQuery.js";
+import authRoutes from './routes/authRoute.js';
 
 dotenv.config();
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use("/api", uploadRoutes);
 app.use("/api", pdfQueryRoutes);
-import fs from "fs";
-import path from "path";
+app.use("/api/auth", authRoutes);
+app.get("/", (req, res) => res.send("Server running..."));
+
 
 const uploadDir = path.join(process.cwd(), "uploads");
 if (!fs.existsSync(uploadDir)) {
@@ -23,3 +27,8 @@ if (!fs.existsSync(uploadDir)) {
 app.listen(4000, () => {
   console.log("Server is running on http://localhost:4000");
 });
+
+
+
+
+
