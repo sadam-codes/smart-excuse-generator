@@ -1,11 +1,21 @@
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Chat from "./components/PdfUploader";
+import Login from "./components/Login";
+import Admin from "./components/Admin";
+import Signup from "./components/Signup";
 
-import React from 'react'
-import PdfUploader from "./components/PdfUploader"
 function App() {
   return (
-    <>
-      <PdfUploader />
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/pdf" element={<Chat />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-export default App
+
+export default App;

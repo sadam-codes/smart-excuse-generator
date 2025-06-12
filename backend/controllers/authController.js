@@ -1,6 +1,7 @@
 
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import pool from "../config/db.js";
 import { findUserByEmail, createUser } from "../models/userModel.js";
 
 import dotenv from "dotenv";
@@ -65,3 +66,7 @@ export const userAccess = async (req, res) => {
   res.json({ message: `Welcome User (ID: ${req.user.id})` });
 }
 
+export const getAllUsers = async (req, res) => {
+  const result = await pool.query("SELECT name, email, role FROM users");
+  res.json(result.rows);
+};
