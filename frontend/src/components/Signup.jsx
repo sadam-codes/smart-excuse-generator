@@ -22,12 +22,11 @@ const Signup = () => {
                 role: email === "admin@gmail.com" ? "admin" : "user",
             });
             toast.success("Signup successful! Please login.");
-            navigate("/login");
+            navigate("/pdf");
         } catch (error) {
             toast.error("Signup failed. Try again.");
         }
     };
-
     return (
         <div className="min-h-screen bg-black flex items-center justify-center">
             <Toaster />
