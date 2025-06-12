@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -15,18 +14,24 @@ const Signup = () => {
 
     const handleSignup = async () => {
         try {
-            await axios.post("http://localhost:4000/api/auth/signup", {
-                name,
-                email,
-                password,
-                role: email === "admin@gmail.com" ? "admin" : "user",
+
+            await axios.post("http://localhost:4000/api/auth/send-otp", { email });
+            navigate("/otp", {
+                state: {
+                    name,
+                    email,
+                    password,
+                    role: email === "admin@gmail.com" ? "admin" : "user",
+                    isSignup: true,
+                },
             });
-            toast.success("Signup successful! Please login.");
-            navigate("/pdf");
+
+            toast.success("OTP sent to your email!");
         } catch (error) {
-            toast.error("Signup failed. Try again.");
+            toast.error("Failed to send OTP");
         }
     };
+
     return (
         <div className="min-h-screen bg-black flex items-center justify-center">
             <Toaster />
@@ -72,7 +77,7 @@ const Signup = () => {
                     Signup
                 </button>
                 <p className="text-sm text-center mt-4">
-                    Already have an account?{' '}
+                    Already have an account?{" "}
                     <Link to="/login" className="text-blue-600 hover:underline">
                         Login here
                     </Link>

@@ -4,6 +4,7 @@ import Chat from "./components/PdfUploader";
 import Login from "./components/Login";
 import Admin from "./components/Admin";
 import Signup from "./components/Signup";
+import OtpVerification from "./components/OtpVerification";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/pdf" element={<Chat />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/otp" element={<OtpVerification />} />
       </Routes>
     </BrowserRouter>
   );
