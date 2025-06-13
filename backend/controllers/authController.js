@@ -1,3 +1,4 @@
+
 import bcrypt from "bcrypt";
 import pool from "../config/db.js";
 import { generateOtp, otpStore } from "../utils/otp.js";
@@ -35,21 +36,24 @@ export const signup = async (req, res) => {
 // Login logic
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  const normalizedEmail = email.toLowerCase();
 
   try {
-    const user = await findUserByEmail(normalizedEmail);
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    const user = await findUserByEmail(email); // however you're finding the user
+    if (!user) return res.status(401).json({ message: "User not found" });
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ message: "Invalid credentials" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    const token = generateToken(user);
-    res.status(200).json({ user, token });
+    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    return res.status(200).json({ token, role: user.role });
   } catch (err) {
-    res.status(500).json({ message: "Login error", error: err.message });
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Admin access
 export const adminAccess = async (req, res) => {
@@ -79,8 +83,7 @@ export const sendOtp = async (req, res) => {
   console.log("Raw Request Body:", req.body);
 
   const { email } = req.body;
-  const normalizedEmail = email.toLowerCase();
-
+  const normalizedEmail = email?.trim().toLowerCase();
   if (!normalizedEmail) {
     console.log("Missing email in request body");
     return res.status(400).json({ message: "Email is required" });
@@ -128,5 +131,6 @@ export const verifyAndAuth = async (req, res) => {
   const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
   otpStore.delete(normalizedEmail); // clean up
 
-  res.json({ user, token });
+  res.json({ token, role: user.role });
+
 };

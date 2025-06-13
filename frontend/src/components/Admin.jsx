@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,27 +7,34 @@ const Admin = () => {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const email = localStorage.getItem("email");
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
-    if (email == "admin@gmail.com") {
+  if (!token) {
+    toast.error("Token not found, please login");
+    navigate("/login");
+    return;
+  }
+
+  if (role !== "admin") {
+    toast.error("Access denied: You are not an admin");
+    navigate("/login");
+    return;
+  }
+
+  axios
+    .get("http://localhost:4000/api/auth/users", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .then((res) => setUsers(res.data))
+    .catch((err) => {
+      console.error("Failed to fetch users:", err);
+      toast.error("Session expired. Login again.");
       navigate("/login");
-      return;
-    }
+    });
+}, []);
 
-    axios
-      .get("http://localhost:4000/api/auth/users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => setUsers(res.data))
-      .catch((err) => {
-        console.error("Failed to fetch users:", err.response?.data || err.message);
-        navigate("/login");
-      });
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-5">

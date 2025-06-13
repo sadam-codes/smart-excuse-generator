@@ -9,26 +9,30 @@ const Signup = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [role, setRole] = useState("user"); // ✅ NEW state
     const [showPassword, setShowPassword] = useState(false);
+
     const navigate = useNavigate();
 
     const handleSignup = async () => {
         try {
+            await axios.post("http://localhost:4000/api/auth/send-otp", { email, role }); // ✅ Include email too
 
-            await axios.post("http://localhost:4000/api/auth/send-otp", { email });
+            toast.success("OTP sent to your email!");
+
             navigate("/otp", {
                 state: {
                     name,
                     email,
                     password,
-                    role: email === "admin@gmail.com" ? "admin" : "user",
+                    role,
                     isSignup: true,
                 },
             });
 
-            toast.success("OTP sent to your email!");
+
         } catch (error) {
-            toast.error("Failed to send OTP");
+            toast.error(error.response?.data?.message || "Failed to send OTP");
         }
     };
 
@@ -70,6 +74,9 @@ const Signup = () => {
                         )}
                     </span>
                 </div>
+
+
+
                 <button
                     onClick={handleSignup}
                     className="w-full bg-black text-white py-3 rounded-md font-semibold"

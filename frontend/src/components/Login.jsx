@@ -1,3 +1,4 @@
+
 // Login.jsx
 import React, { useState } from "react";
 import axios from "axios";
@@ -13,18 +14,23 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-
   const loginHandler = async () => {
     try {
       const res = await axios.post("http://localhost:4000/api/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      if (email === "admin@gmail.com") navigate("/admin");
-      else navigate("/pdf");
+      const { token, role } = res.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+
       toast.success("Login successful!");
+
+      if (role === "admin") navigate("/admin");
+      else navigate("/pdf");
     } catch {
       toast.error("Invalid credentials");
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -64,7 +70,7 @@ const Login = () => {
           Login
         </button>
         <p className="text-sm text-center mt-4">
-          Don't have an account?{' '}
+          Don't have an account?
           <Link to="/" className="text-blue-600 hover:underline">
             Signup here
           </Link>

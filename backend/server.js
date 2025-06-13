@@ -31,4 +31,3 @@ app.listen(4000, () => {
 
 
 
-// send a one-time password (OTP) to the user's email address. The user then enters this OTP on the website to verify their email.

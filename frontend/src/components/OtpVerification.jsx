@@ -27,7 +27,7 @@ const OtpVerification = () => {
 
       localStorage.setItem("token", token);
 
-      if (role === "admin" || email === "admin@gmail.com") {
+      if (role === "admin") {
         navigate("/admin");
       } else {
         navigate("/pdf");
