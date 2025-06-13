@@ -18,7 +18,6 @@ export const sendOtpEmail = async (email, otp) => {
             subject: "Your OTP Code",
             text: `Your OTP is ${otp}`,
         });
-        console.log("OTP email sent to", email);
     } catch (error) {
         console.error("Email sending failed:", error.message);
         throw error;

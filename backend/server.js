@@ -6,6 +6,8 @@ import path from "path";
 import uploadRoutes from "./routes/PdfUploadRoute.js";
 import pdfQueryRoutes from "./routes/pdfQueryRoute.js";
 import authRoutes from "./routes/authRoute.js";
+import cron from "node-cron";
+
 
 dotenv.config();
 const app = express();
@@ -21,7 +23,15 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
   console.log("Created uploads directory");
 }
+//cron Job
+function logMessage() {
+  console.log('Cron job executed at:', new Date().toLocaleString());
+}
+// setInterval(logMessage,1000)
 
+cron.schedule('* * * * *', () => {
+  logMessage();
+});
 
 app.listen(4000, () => {
   console.log("Server is running on http://localhost:4000");
