@@ -1,3 +1,4 @@
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -25,7 +26,7 @@ if (!fs.existsSync(uploadDir)) {
 }
 //cron Job
 function logMessage() {
-  console.log('Cron job executed at:', new Date().toLocaleString());
+  // console.log('Cron job executed at:', new Date().toLocaleString());
 }
 // setInterval(logMessage,1000)
 

@@ -6,6 +6,8 @@ import { isAdmin } from "../middleware/authMiddleware.js";
 import { getAllUsers } from "../controllers/authController.js";
 import { authenticate } from "../middleware/authMiddleware.js";
 import { sendOtp, verifyAndAuth } from "../controllers/authController.js";
+import { googleAuth } from "../controllers/authController.js";
+
 
 
 
@@ -18,5 +20,5 @@ router.get("/admin", authenticate, adminAccess);
 router.get("/user", authenticate, userAccess);
 router.post("/send-otp", sendOtp);
 router.post("/verify-otp", verifyAndAuth);
-
+router.post("/google-auth", googleAuth);
 export default router;

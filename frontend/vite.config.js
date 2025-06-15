@@ -4,10 +4,14 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
-    server: {
-      headers: {
-        "Cross-Origin-Opener-Policy": "same-origin",
-        "Cross-Origin-Embedder-Policy": "require-corp",
-      },
+
+  server: {
+    host: "localhost", // or '0.0.0.0'
+    port: 3000,
+    strictPort: true,
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
     },
-  });
+  },
+});

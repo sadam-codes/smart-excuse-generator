@@ -1,4 +1,5 @@
 
+
 import bcrypt from "bcrypt";
 import pool from "../config/db.js";
 import { generateOtp, otpStore } from "../utils/otp.js";
@@ -48,7 +49,8 @@ export const login = async (req, res) => {
       expiresIn: "7d",
     });
 
-    return res.status(200).json({ token, role: user.role });
+    return res.status(200).json({ token, role: user.role, name: user.name });
+
   } catch (err) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -133,4 +135,26 @@ export const verifyAndAuth = async (req, res) => {
 
   res.json({ token, role: user.role });
 
+};
+
+export const googleAuth = async (req, res) => {
+  const { name, email } = req.body;
+  const normalizedEmail = email.toLowerCase();
+
+  try {
+    let user = await findUserByEmail(normalizedEmail);
+
+    if (!user) {
+      const hashedPassword = await bcrypt.hash("google_login_dummy", 10); // dummy password
+      user = await createUser(name, normalizedEmail, hashedPassword, "user");
+    }
+
+    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.status(200).json({ token, role: user.role });
+  } catch (err) {
+    res.status(500).json({ message: "Google login failed", error: err.message });
+  }
 };
